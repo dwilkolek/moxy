@@ -72,7 +72,7 @@ func setupHttpServerForService(service string, port int, to string) {
 		server := http.NewServeMux()
 
 		server.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-			fmt.Printf("%s: %s %s ", service, r.Method, r.URL.Path)
+			fmt.Printf("%s: %s %s\n", service, r.Method, r.URL.Path)
 			proxy.ServeHTTP(w, r)
 		})
 
