@@ -1,0 +1,11 @@
+{
+    "tunnel": {
+        "userAndHost": "sshuser@localhost",
+        "pathToPrivateKey": "server/id_rsa",
+        "destination": "localhost:8080"
+    },
+    "services": {
+        "some": 9900,
+        "other": 9901
+    }
+}
