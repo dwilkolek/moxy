@@ -18,12 +18,20 @@ Example `config.json`.
 {
     "tunnel": {
         "userAndHost": "sshuser@localhost",
-        "pathToPrivateKey": "server/id_rsa",
+        "pathToPrivateKey": "/absolute/path/to/private/key/id_rsa",
         "destination": "localhost:8080"
     },
     "services": {
-        "some": 9900,
-        "other": 9901
+        "some": {
+            "port": 9000,
+            "headers": {
+                "some": "value",
+                "another":"header"
+            } 
+        },
+        "other": {
+            "port": 9001
+        }
     }
 }
 ```
