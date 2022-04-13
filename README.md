@@ -25,8 +25,8 @@ Example `config.json`.
         "some": {
             "port": 9000,
             "headers": {
-                "some": "value",
-                "another":"header"
+                "host": "some.service"
+                "some": "value"
             },
             "allowCors": true
         },
@@ -38,9 +38,9 @@ Example `config.json`.
 ```
 This config will connect to `sshuser@localhost` using key `/absolute/path/to/private/key/id_rsa` (use absolute path) and tunnel to `localhost:8080`.
 It will expose 
-- ssh unnel under random port (available std output)
-- `localhost:9000` http server under available at `localhost:8080` called with header `Host: some.service`
-- `localhost:9901` http server under available at `localhost:8080` called with header `Host: other.service`
+- ssh tunnel under random port (available in std output)
+- `localhost:9000` http server under available at tunneled `localhost:8080` called with headers `Host: some.service`, `"some: value"` and will handle preflight OPTION request to fulfill browsers cors check.
+- `localhost:9901` http server under available at tunneled `localhost:8080`.
 
 
 ## Running
