@@ -20,7 +20,7 @@ import (
 
 var wg sync.WaitGroup
 
-var version = "1.0.0"
+var version = "1.0.1"
 
 type TunnelConfig struct {
 	UserAndHost      string `json:"userAndHost"`
@@ -35,7 +35,7 @@ type MoxyConfig struct {
 type ProxyConfig struct {
 	Port      int               `json:"port"`
 	Headers   map[string]string `json:"headers"`
-	allowCors bool              `json:"allowCors"`
+	AllowCors bool              `json:"allowCors"`
 }
 
 func doUpdate() error {
@@ -65,7 +65,14 @@ func doUpdate() error {
 func main() {
 	doUpdate()
 	fmt.Printf("Moxy version: %s \n", version)
-	config := getConfig(os.Args[1])
+
+	configFile := "config.json"
+	if len(os.Args) < 2 {
+		configFile = os.Args[1]
+	}
+	fmt.Printf("Config file: %s \n", configFile)
+
+	config := getConfig(configFile)
 	tunnelPort := setupTunnel(config.Tunnel)
 	wg.Add(1)
 
@@ -116,14 +123,30 @@ func setupHttpServerForService(service string, conf ProxyConfig, to string) {
 		server.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 			fmt.Printf("%s: %s %s\n", service, r.Method, r.URL.Path)
 
-			if conf.allowCors {
-				if r.Method == "OPTIONS" {
-					w.WriteHeader(200)
-					w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
+			fmt.Println("allow cors")
+
+			fmt.Println(conf.AllowCors)
+			if conf.AllowCors {
+				// if r.Method == "OPTIONS" {
+				// 	fmt.Println("skipping")
+
+				// 	w.WriteHeader(200)
+				// 	w.Header().Set("Access-Control-Allow-Origin", "*")
+				// 	w.Header().Set("Access-Control-Allow-Methods", r.Header.Get("Access-Control-Request-Method"))
+				// 	w.Header().Set("Access-Control-Allow-Headers", r.Header.Get("Access-Control-Request-Headers"))
+
+				// 	return
+				// }
+				if r.Method == http.MethodOptions {
+					w.Header().Set("Access-Control-Allow-Origin", "*")
 					w.Header().Set("Access-Control-Allow-Methods", r.Header.Get("Access-Control-Request-Method"))
 					w.Header().Set("Access-Control-Allow-Headers", r.Header.Get("Access-Control-Request-Headers"))
+					w.Header().Set("Access-Control-Max-Age", "3600")
+					w.WriteHeader(http.StatusNoContent)
 					return
 				}
+				// Set CORS headers for the main request.
+				w.Header().Set("Access-Control-Allow-Origin", "*")
 			}
 
 			proxy.ServeHTTP(w, r)
