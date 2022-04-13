@@ -27,7 +27,8 @@ Example `config.json`.
             "headers": {
                 "some": "value",
                 "another":"header"
-            } 
+            },
+            "allowCors": true
         },
         "other": {
             "port": 9001
@@ -35,7 +36,7 @@ Example `config.json`.
     }
 }
 ```
-This config will connect to `sshuser@localhost` using key `server/id_rsa` (use absolute path) and tunnel to `localhost:8080`.
+This config will connect to `sshuser@localhost` using key `/absolute/path/to/private/key/id_rsa` (use absolute path) and tunnel to `localhost:8080`.
 It will expose 
 - ssh unnel under random port (available std output)
 - `localhost:9000` http server under available at `localhost:8080` called with header `Host: some.service`

@@ -1,16 +1,18 @@
 {
     "tunnel": {
         "userAndHost": "sshuser@localhost",
-        "pathToPrivateKey": "absolute/path/to/private/key/id_rsa",
+        "pathToPrivateKey": "D:\\repos\\ssh-test-box/id_rsa",
         "destination": "localhost:8080"
     },
     "services": {
         "some": {
             "port": 9000,
             "headers": {
+                "Host": "nemo.service",
                 "some": "value",
-                "another":"header"
-            } 
+                "another": "header"
+            },
+            "allowCors": true
         },
         "other": {
             "port": 9001
