@@ -20,7 +20,7 @@ import (
 
 var wg sync.WaitGroup
 
-var version = "1.0.0"
+var version = "1.0.1"
 
 type TunnelConfig struct {
 	UserAndHost      string `json:"userAndHost"`
