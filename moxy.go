@@ -56,6 +56,8 @@ func doUpdate() error {
 	} else {
 		return nil
 	}
+	url = strings.Replace(url, "/tag/", "/download/", -1)
+	fmt.Printf("Checking for updates %s \n", url)
 
 	resp, err := http.Get(url)
 	if err != nil {
