@@ -40,12 +40,19 @@ type ProxyConfig struct {
 
 func doUpdate() error {
 	var url string
+
+	var client = &http.Client{}
+	client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+		url = req.URL.String()
+		return nil
+	}
+	client.Get("https://github.com/dwilkolek/moxy/releases/latest")
 	if runtime.GOOS == "windows" {
-		url = "https://github.com/dwilkolek/moxy/raw/master/bin/moxy-windows.exe"
+		url = url + "/moxy-windows.exe"
 	} else if runtime.GOOS == "darwin" {
-		url = "https://github.com/dwilkolek/moxy/raw/master/bin/moxy-mac"
+		url = url + "/moxy-mac"
 	} else if runtime.GOOS == "linux" {
-		url = "https://github.com/dwilkolek/moxy/raw/master/bin/moxy-linux"
+		url = url + "/moxy-linux"
 	} else {
 		return nil
 	}
