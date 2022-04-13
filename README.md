@@ -1,8 +1,8 @@
 # MOXY
-This is application to setup ssh tunnel and expose http servers under bastion.
-It setup ssh tunnel with host with key authorizastion to destination specified in config and exposes http proxy to that server by adding Host header.
+This is application to set up ssh tunnel and expose http servers under bastion.
+It set up ssh tunnel with host with key authorization to destination specified in config and exposes http proxy with headers beatification required by external service.
 
-## Builiding
+## Building
 ```
 $Env:GOOS="linux"
 go build -o bin/moxy-linux github.com/dwilkolek/moxy
@@ -44,6 +44,8 @@ It will expose
 
 
 ## Running
+If you don't provide config as an arg then `config.json` will be used.
+
 ### Windows
 ```
 ./moxy-windows.exe ./config.json
