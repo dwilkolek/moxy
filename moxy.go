@@ -20,7 +20,7 @@ import (
 
 var wg sync.WaitGroup
 
-var version = "1.0.2"
+var version = "1.0.3"
 
 type TunnelConfig struct {
 	UserAndHost      string `json:"userAndHost"`
@@ -37,6 +37,8 @@ type ProxyConfig struct {
 	Headers   map[string]string `json:"headers"`
 	AllowCors bool              `json:"allowCors"`
 }
+
+var moxyLogger = log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
 
 func doUpdate() error {
 	var url string
@@ -65,11 +67,11 @@ func doUpdate() error {
 	url = strings.Replace(url, "/tag/", "/download/", -1)
 
 	if strings.Contains(url, version) {
-		fmt.Printf("Up to date. \n")
+		moxyLogger.Printf("Up to date. \n")
 		return nil
 	}
 
-	fmt.Printf("Downloading update... %s \n", url)
+	moxyLogger.Printf("Downloading update... %s \n", url)
 
 	go func() error {
 		resp, err := http.Get(url)
@@ -79,7 +81,7 @@ func doUpdate() error {
 		defer resp.Body.Close()
 		err = update.Apply(resp.Body, update.Options{})
 		if err != nil {
-			//
+			moxyLogger.Println("Downloading update failed")
 		}
 		return err
 	}()
@@ -87,7 +89,7 @@ func doUpdate() error {
 }
 
 func main() {
-	fmt.Printf("Moxy version: %s \n", version)
+	moxyLogger.Printf("Moxy version: %s \n", version)
 
 	doUpdate()
 
@@ -95,9 +97,14 @@ func main() {
 	if len(os.Args) > 1 {
 		configFile = os.Args[1]
 	}
-	fmt.Printf("Config file: %s \n", configFile)
+	moxyLogger.Printf("Config file: %s \n", configFile)
 
-	config := getConfig(configFile)
+	config, err := getConfig(configFile)
+	if err != nil {
+		moxyLogger.Println("Reading config file failed. " + err.Error())
+		return
+	}
+
 	tunnelPort := setupTunnel(config.Tunnel)
 	wg.Add(1)
 
@@ -119,14 +126,17 @@ func setupTunnel(tunnelConfig TunnelConfig) int {
 
 	go tunnel.Start()
 	time.Sleep(100 * time.Millisecond)
-	fmt.Printf("Tunnel started and exposed on port: %d\n", tunnel.Local.Port)
+	tunnel.Log.Printf("Tunnel started and exposed on port: %d\n", tunnel.Local.Port)
+
 	return tunnel.Local.Port
 }
 
 func setupHttpServerForService(service string, conf ProxyConfig, to string) {
 	go func() {
+		logger := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
 		origin, _ := url.Parse(to)
-		fmt.Printf("Setup %s \n", service)
+
+		logger.Printf("Setting up %s \n", service)
 
 		director := func(req *http.Request) {
 			req.Header.Add("X-Forwarded-Host", req.Host)
@@ -147,7 +157,7 @@ func setupHttpServerForService(service string, conf ProxyConfig, to string) {
 		server := http.NewServeMux()
 
 		server.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-			fmt.Printf("%s: %s %s\n", service, r.Method, r.URL.Path)
+			logger.Printf("%s %s %s\n", service, r.Method, r.URL.Path)
 
 			if conf.AllowCors {
 				if r.Method == http.MethodOptions {
@@ -164,16 +174,19 @@ func setupHttpServerForService(service string, conf ProxyConfig, to string) {
 
 		})
 
-		fmt.Printf("Starting server for %s at port %d\n", service, conf.Port)
+		logger.Printf("Starting %s server at port: %d\n", service, conf.Port)
 		if err := http.ListenAndServe(fmt.Sprintf(":%d", conf.Port), server); err != nil {
 			log.Fatal(err)
 		}
 	}()
 }
 
-func getConfig(file string) MoxyConfig {
-	jsonFile, _ := ioutil.ReadFile(file)
+func getConfig(file string) (MoxyConfig, error) {
+	jsonFile, err := ioutil.ReadFile(file)
+	if err != nil {
+		return MoxyConfig{}, err
+	}
 	var objmap MoxyConfig
 	json.Unmarshal([]byte(jsonFile), &objmap)
-	return objmap
+	return objmap, nil
 }
