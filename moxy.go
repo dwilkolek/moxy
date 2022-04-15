@@ -46,7 +46,12 @@ func doUpdate() error {
 		url = req.URL.String()
 		return nil
 	}
-	client.Get("https://github.com/dwilkolek/moxy/releases/latest")
+
+	_, err := client.Get("https://github.com/dwilkolek/moxy/releases/latest")
+	if err != nil {
+		return err
+	}
+
 	if runtime.GOOS == "windows" {
 		url = url + "/moxy-windows.exe"
 	} else if runtime.GOOS == "darwin" {
@@ -56,24 +61,35 @@ func doUpdate() error {
 	} else {
 		return nil
 	}
-	url = strings.Replace(url, "/tag/", "/download/", -1)
-	fmt.Printf("Checking for updates %s \n", url)
 
-	resp, err := http.Get(url)
-	if err != nil {
+	url = strings.Replace(url, "/tag/", "/download/", -1)
+
+	if strings.Contains(url, version) {
+		fmt.Printf("Up to date. \n")
+		return nil
+	}
+
+	fmt.Printf("Downloading update... %s \n", url)
+
+	go func() error {
+		resp, err := http.Get(url)
+		if err != nil {
+			return err
+		}
+		defer resp.Body.Close()
+		err = update.Apply(resp.Body, update.Options{})
+		if err != nil {
+			//
+		}
 		return err
-	}
-	defer resp.Body.Close()
-	err = update.Apply(resp.Body, update.Options{})
-	if err != nil {
-		//
-	}
-	return err
+	}()
+	return nil
 }
 
 func main() {
-	doUpdate()
 	fmt.Printf("Moxy version: %s \n", version)
+
+	doUpdate()
 
 	configFile := "config.json"
 	if len(os.Args) > 1 {
