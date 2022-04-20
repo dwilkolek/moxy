@@ -9,6 +9,7 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"os"
+	"path/filepath"
 	"runtime"
 	"strings"
 	"sync"
@@ -92,8 +93,8 @@ func main() {
 	moxyLogger.Printf("Moxy version: %s \n", version)
 
 	doUpdate()
-
-	configFile := "config.json"
+	cwd, _ := os.Executable()
+	configFile := filepath.Join(filepath.Dir(cwd), "config.json")
 	if len(os.Args) > 1 {
 		configFile = os.Args[1]
 	}
