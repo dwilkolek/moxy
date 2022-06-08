@@ -21,7 +21,7 @@ import (
 
 var wg sync.WaitGroup
 
-var version = "1.0.4"
+var version = "1.0.5"
 
 type TunnelConfig struct {
 	UserAndHost      string `json:"userAndHost"`
@@ -140,9 +140,6 @@ func setupHttpServerForService(service string, conf ProxyConfig, to string) {
 		logger.Printf("Setting up %s \n", service)
 
 		director := func(req *http.Request) {
-			req.Header.Add("X-Forwarded-Host", req.Host)
-			req.Header.Add("X-Origin-Host", origin.Host)
-
 			for header, value := range conf.Headers {
 				req.Header.Add(header, value)
 				if strings.ToLower(header) == "host" {
@@ -158,7 +155,7 @@ func setupHttpServerForService(service string, conf ProxyConfig, to string) {
 		server := http.NewServeMux()
 
 		server.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-			logger.Printf("%s %s %s\n", service, r.Method, r.URL.Path)
+			logger.Printf("%s %s %s %s\n", service, r.Method, r.URL.Path, r.URL.RawQuery)
 
 			if conf.AllowCors {
 				if r.Method == http.MethodOptions {
@@ -171,6 +168,8 @@ func setupHttpServerForService(service string, conf ProxyConfig, to string) {
 					w.Header().Set("Access-Control-Allow-Origin", "*")
 					proxy.ServeHTTP(w, r)
 				}
+			} else {
+				proxy.ServeHTTP(w, r)
 			}
 
 		})
