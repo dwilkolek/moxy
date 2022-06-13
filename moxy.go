@@ -21,7 +21,7 @@ import (
 
 var wg sync.WaitGroup
 
-var version = "1.0.5"
+var version = "1.0.6"
 
 type TunnelConfig struct {
 	UserAndHost      string `json:"userAndHost"`
@@ -156,7 +156,7 @@ func setupHttpServerForService(service string, conf ProxyConfig, to string) {
 
 		server.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 			logger.Printf("%s %s %s %s\n", service, r.Method, r.URL.Path, r.URL.RawQuery)
-
+			defer r.Body.Close()
 			if conf.AllowCors {
 				if r.Method == http.MethodOptions {
 					w.Header().Set("Access-Control-Allow-Origin", "*")
