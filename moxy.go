@@ -21,7 +21,7 @@ import (
 
 var wg sync.WaitGroup
 
-var version = "1.0.6"
+var version string
 
 type TunnelConfig struct {
 	UserAndHost      string `json:"userAndHost"`
@@ -66,7 +66,7 @@ func doUpdate() error {
 	}
 
 	url = strings.Replace(url, "/tag/", "/download/", -1)
-
+	moxyLogger.Printf("Latest version available at %s \n", url)
 	if strings.Contains(url, version) {
 		moxyLogger.Printf("Up to date. \n")
 		return nil
