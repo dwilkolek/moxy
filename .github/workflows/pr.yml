@@ -1,16 +1,15 @@
-# Name of the workflow
-name: Release
+name: PR Check
 
 # Run on every commit tag which begins with "v" (e.g., "v0.1.4")
 on:
   push:
-    tags:
-      - "v*"
+    branches:
+      - "*"
 
 # Automatically create a GitHub Release, with release details specified (the relevant commits)
 jobs:
-  release:
-    name: "Release"
+  check:
+    name: "Check build"
     runs-on: "ubuntu-latest"
     steps:
       - uses: actions/checkout@v3
@@ -22,8 +21,3 @@ jobs:
           check-latest: true
       - run: chmod +x ./build.sh
       - run: ./build.sh $RELEASE_VERSION
-      - uses: "marvinpinto/action-automatic-releases@latest"
-        with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          prerelease: false
-          files: bin/moxy-*
