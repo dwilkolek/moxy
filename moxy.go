@@ -21,7 +21,7 @@ import (
 
 var wg sync.WaitGroup
 
-var version = "1.0.6"
+var version string
 
 type TunnelConfig struct {
 	UserAndHost      string `json:"userAndHost"`
@@ -55,18 +55,15 @@ func doUpdate() error {
 		return err
 	}
 
-	if runtime.GOOS == "windows" {
-		url = url + "/moxy-windows.exe"
-	} else if runtime.GOOS == "darwin" {
-		url = url + "/moxy-mac"
-	} else if runtime.GOOS == "linux" {
-		url = url + "/moxy-linux"
-	} else {
-		return nil
+	if runtime.GOARCH == "amd64" {
+		url := "/moxy-" + runtime.GOOS + "-" + runtime.GOARCH
+		if runtime.GOOS == "windows" {
+			url = url + ".exe"
+		}
 	}
 
 	url = strings.Replace(url, "/tag/", "/download/", -1)
-
+	moxyLogger.Printf("Latest version available at %s \n", url)
 	if strings.Contains(url, version) {
 		moxyLogger.Printf("Up to date. \n")
 		return nil
@@ -91,7 +88,6 @@ func doUpdate() error {
 
 func main() {
 	moxyLogger.Printf("Moxy version: %s \n", version)
-
 	doUpdate()
 	cwd, _ := os.Executable()
 	configFile := filepath.Join(filepath.Dir(cwd), "config.json")

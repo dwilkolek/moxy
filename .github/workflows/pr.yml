@@ -1,0 +1,23 @@
+name: PR Check
+
+# Run on every commit tag which begins with "v" (e.g., "v0.1.4")
+on:
+  push:
+    branches:
+      - "*"
+
+# Automatically create a GitHub Release, with release details specified (the relevant commits)
+jobs:
+  check:
+    name: "Check build"
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set env
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+      - uses: actions/setup-go@v3
+        with:
+          go-version: "1.18"
+          check-latest: true
+      - run: chmod +x ./build.sh
+      - run: ./build.sh $RELEASE_VERSION
