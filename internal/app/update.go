@@ -8,6 +8,8 @@ import (
 	"github.com/inconshreveable/go-update"
 )
 
+var version string
+
 func Update() error {
 	var url string
 

@@ -15,8 +15,6 @@ import (
 	"github.com/elliotchance/sshtunnel"
 )
 
-var version string
-
 func Run(config *config.MoxyConfig) {
 	var wg sync.WaitGroup
 
