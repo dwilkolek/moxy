@@ -6,12 +6,12 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"os"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/dwilkolek/moxy/config"
+	"github.com/dwilkolek/moxy/internal/logger"
 	"github.com/elliotchance/sshtunnel"
 )
 
@@ -35,18 +35,18 @@ func setupTunnel(tunnelConfig config.TunnelConfig) int {
 		"0",
 	)
 
-	tunnel.Log = log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
+	tunnel.Log = logger.New("Tunnel")
 
 	go tunnel.Start()
 	time.Sleep(100 * time.Millisecond)
-	tunnel.Log.Printf("Tunnel started and exposed on port: %d\n", tunnel.Local.Port)
+	tunnel.Log.Printf("Started and exposed on port: %d\n", tunnel.Local.Port)
 
 	return tunnel.Local.Port
 }
 
 func setupHttpServerForService(service string, conf config.ProxyConfig, to string) {
 	go func() {
-		logger := log.New(os.Stdout, service+"\t", log.Ldate|log.Lmicroseconds)
+		logger := logger.New(service)
 		origin, _ := url.Parse(to)
 
 		logger.Printf("Setting up at port: %d \n", conf.Port)

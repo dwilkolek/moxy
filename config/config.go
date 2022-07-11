@@ -3,7 +3,8 @@ package config
 import (
 	"encoding/json"
 	"io/ioutil"
-	"log"
+
+	"github.com/dwilkolek/moxy/internal/logger"
 )
 
 type MoxyConfig struct {
@@ -35,11 +36,12 @@ func NewConfig(arg string) (*MoxyConfig, error) {
 }
 
 func findFileLocation(arg string) string {
+	logger := logger.New("Moxy")
 	configFile := arg
 	if len(arg) > 0 {
 		configFile = arg
 	}
-	log.Default().Printf("Config file: %s \n", configFile)
+	logger.Printf("Config file: %s \n", configFile)
 	return configFile
 
 }

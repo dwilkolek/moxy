@@ -5,6 +5,7 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/dwilkolek/moxy/internal/logger"
 	"github.com/inconshreveable/go-update"
 )
 
@@ -12,7 +13,7 @@ var version string
 
 func Update() error {
 	var url string
-
+	logger := logger.New("Moxy")
 	var client = &http.Client{}
 	client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
 		url = req.URL.String()
@@ -32,13 +33,13 @@ func Update() error {
 	}
 
 	url = strings.Replace(url, "/tag/", "/download/", -1)
-	MoxyLogger.Printf("Latest version available at %s \n", url)
+	logger.Printf("Latest version available at %s \n", url)
 	if strings.Contains(url, version) {
-		MoxyLogger.Printf("Up to date. \n")
+		logger.Printf("Up to date. \n")
 		return nil
 	}
 
-	MoxyLogger.Printf("Downloading update... %s \n", url)
+	logger.Printf("Downloading update... %s \n", url)
 
 	resp, err := http.Get(url)
 	if err != nil {
@@ -48,7 +49,7 @@ func Update() error {
 	err = update.Apply(resp.Body, update.Options{})
 
 	if err != nil {
-		MoxyLogger.Println("Downloading update failed")
+		logger.Println("Downloading update failed")
 	}
 	return err
 
