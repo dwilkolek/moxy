@@ -31,7 +31,7 @@ func main() {
 	case "update":
 		app.Update()
 	default:
-		fmt.Println("Available options:\n \t start <config.json> - to start application\n \t update - to upadate application")
+		fmt.Println("Available options:\n \t start [config_file:config.json]/[profile] - to start application with [config_file] or config-[profile].json\n \t update - to upadate application")
 	}
 
 }

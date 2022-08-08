@@ -2,7 +2,9 @@ package config
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
+	"strings"
 
 	"github.com/dwilkolek/moxy/internal/logger"
 )
@@ -37,9 +39,15 @@ func NewConfig(arg string) (*MoxyConfig, error) {
 
 func findFileLocation(arg string) string {
 	logger := logger.New("Moxy")
-	configFile := arg
+	var configFile string
 	if len(arg) > 0 {
-		configFile = arg
+		if strings.Index(arg, ".") != -1 {
+			configFile = arg
+		} else {
+			configFile = fmt.Sprintf("config-%s.json", arg)
+		}
+	} else {
+		panic("Config file not set!")
 	}
 	logger.Printf("Config file: %s \n", configFile)
 	return configFile
