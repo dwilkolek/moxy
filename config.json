@@ -8,7 +8,7 @@
         "some": {
             "port": 9000,
             "headers": {
-                "Host": "nemo.service",
+                "Host": "custom-header",
                 "some": "value",
                 "another": "header"
             },
