@@ -11,9 +11,8 @@ import (
 
 var version string
 
-func Update() error {
+func CheckForUpdateUrl() (string, error) {
 	var url string
-	logger := logger.New("Moxy")
 	var client = &http.Client{}
 	client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
 		url = req.URL.String()
@@ -22,7 +21,7 @@ func Update() error {
 
 	_, err := client.Get("https://github.com/dwilkolek/moxy/releases/latest")
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	if runtime.GOARCH == "amd64" {
@@ -33,15 +32,22 @@ func Update() error {
 	}
 
 	url = strings.Replace(url, "/tag/", "/download/", -1)
-	logger.Printf("Latest version available at %s \n", url)
 	if strings.Contains(url, version) {
-		logger.Printf("Up to date. \n")
-		return nil
+		return "", nil
+	}
+	return url, nil
+}
+
+func Update() error {
+	logger := logger.New("Moxy")
+	updateUrl, err := CheckForUpdateUrl()
+	if err != nil {
+		return err
 	}
 
-	logger.Printf("Downloading update... %s \n", url)
+	logger.Printf("Downloading update... %s \n", updateUrl)
 
-	resp, err := http.Get(url)
+	resp, err := http.Get(updateUrl)
 	if err != nil {
 		return err
 	}
