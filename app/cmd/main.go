@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"sync"
@@ -18,16 +17,19 @@ func main() {
 	if len(os.Args) >= 2 {
 		cmd = os.Args[1]
 	}
-	logger.New("Moxy").Printf("Version %s", app.Version())
+	appLog := logger.New("")
+	if cmd != "version" {
+		appLog.Printf("Version %s", app.Version())
+	}
 	var wg sync.WaitGroup
-	if cmd != "update" {
+	if cmd != "update" && cmd != "version" {
 		go func() {
 			wg.Add(1)
 			isUrlUpdate, _ := app.CheckForUpdateUrl()
 			if isUrlUpdate != "" {
-				fmt.Println("There is new version available. run program with `update` argument to get it")
+				appLog.Println("There is new version available. run program with `update` argument to get it")
 			} else {
-				fmt.Println("Up to date")
+				appLog.Println("Up to date")
 			}
 			defer wg.Done()
 		}()
@@ -40,7 +42,7 @@ func main() {
 		}
 		cfg, err := config.NewConfig(file)
 		if err != nil {
-			log.Fatalf("Config error: %s", err)
+			appLog.Fatalf("Config error: %s", err)
 			panic("Failed to start application")
 		}
 		app.Run(cfg)
@@ -48,8 +50,10 @@ func main() {
 		wg.Add(1)
 		app.Update()
 		wg.Done()
+	case "version":
+		appLog.Printf("Version %s", app.Version())
 	default:
-		fmt.Println("Available options:\n \t start [config_file:config.json]/[profile] - to start application with [config_file] or config-[profile].json\n \t update - to upadate application")
+		fmt.Println("Available options:\n \t start [config_file:config.json]/[profile] - to start application with [config_file] or config-[profile].json\n \t update - to upadate application\n \t version - to get version information")
 	}
 	wg.Wait()
 
