@@ -11,6 +11,10 @@ import (
 
 var version string
 
+func Version() string {
+	return version
+}
+
 func CheckForUpdateUrl() (string, error) {
 	var url string
 	var client = &http.Client{}
@@ -32,31 +36,35 @@ func CheckForUpdateUrl() (string, error) {
 	}
 
 	url = strings.Replace(url, "/tag/", "/download/", -1)
+
 	if strings.Contains(url, version) {
 		return "", nil
 	}
 	return url, nil
 }
 
-func Update() error {
+func Update() {
 	logger := logger.New("Moxy")
 	updateUrl, err := CheckForUpdateUrl()
+
 	if err != nil {
-		return err
+		panic("Downloading update failed " + err.Error())
 	}
-
+	if updateUrl == "" {
+		logger.Printf("Up to date. %s\n", version)
+		return
+	}
 	logger.Printf("Downloading update... %s \n", updateUrl)
-
 	resp, err := http.Get(updateUrl)
 	if err != nil {
-		return err
+		panic("Downloading update failed " + err.Error())
 	}
 	defer resp.Body.Close()
 	err = update.Apply(resp.Body, update.Options{})
 
 	if err != nil {
-		logger.Println("Downloading update failed")
+		panic("Downloading update failed")
 	}
-	return err
 
+	logger.Println("Successful update.")
 }
