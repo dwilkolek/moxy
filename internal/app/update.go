@@ -18,21 +18,21 @@ func Version() string {
 func CheckForUpdateUrl() (string, error) {
 	var url string
 	var client = &http.Client{}
+
 	client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
 		url = req.URL.String()
+		if runtime.GOARCH == "amd64" {
+			url = url + "/moxy-" + runtime.GOOS + "-" + runtime.GOARCH
+			if runtime.GOOS == "windows" {
+				url = url + ".exe"
+			}
+		}
 		return nil
 	}
 
 	_, err := client.Get("https://github.com/dwilkolek/moxy/releases/latest")
 	if err != nil {
 		return "", err
-	}
-
-	if runtime.GOARCH == "amd64" {
-		url := "/moxy-" + runtime.GOOS + "-" + runtime.GOARCH
-		if runtime.GOOS == "windows" {
-			url = url + ".exe"
-		}
 	}
 
 	url = strings.Replace(url, "/tag/", "/download/", -1)
