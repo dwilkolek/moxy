@@ -1,7 +1,7 @@
 {
     "tunnel": {
         "userAndHost": "sshuser@localhost",
-        "pathToPrivateKey": "D:\\repos\\ssh-test-box/id_rsa",
+        "pathToPrivateKey": "..\\ssh-test-box\\id_rsa",
         "destination": "localhost:8080"
     },
     "services": {

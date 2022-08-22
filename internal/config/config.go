@@ -2,11 +2,8 @@ package config
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
-	"strings"
 
-	"github.com/dwilkolek/moxy/internal/logger"
 	"github.com/go-playground/validator/v10"
 )
 
@@ -29,8 +26,7 @@ type ProxyConfig struct {
 
 var Validator = validator.New()
 
-func NewConfig(arg string) (*MoxyConfig, error) {
-	fileLocation := findFileLocation(arg)
+func NewConfig(fileLocation string) (*MoxyConfig, error) {
 	jsonFile, err := ioutil.ReadFile(fileLocation)
 	if err != nil {
 		return &MoxyConfig{}, err
@@ -43,21 +39,4 @@ func NewConfig(arg string) (*MoxyConfig, error) {
 		return &MoxyConfig{}, err
 	}
 	return &objmap, nil
-}
-
-func findFileLocation(arg string) string {
-	logger := logger.New("Moxy")
-	var configFile string
-	if len(arg) > 0 {
-		if strings.Index(arg, ".") != -1 {
-			configFile = arg
-		} else {
-			configFile = fmt.Sprintf("config-%s.json", arg)
-		}
-	} else {
-		panic("Config file not set!")
-	}
-	logger.Printf("Config file: %s \n", configFile)
-	return configFile
-
 }
