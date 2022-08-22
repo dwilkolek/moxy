@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/dwilkolek/moxy/config"
 	"github.com/dwilkolek/moxy/internal/app"
 	"github.com/dwilkolek/moxy/internal/logger"
 )
@@ -17,7 +16,7 @@ func main() {
 	if len(os.Args) >= 2 {
 		cmd = os.Args[1]
 	}
-	appLog := logger.New("")
+	appLog := logger.New("Moxy")
 	if cmd != "version" {
 		appLog.Printf("Version %s", app.Version())
 	}
@@ -40,12 +39,7 @@ func main() {
 		if len(os.Args) >= 3 {
 			file = os.Args[2]
 		}
-		cfg, err := config.NewConfig(file)
-		if err != nil {
-			appLog.Fatalf("Config error: %s", err)
-			panic("Failed to start application")
-		}
-		app.Run(cfg)
+		app.Run(file)
 	case "update":
 		wg.Add(1)
 		app.Update()
