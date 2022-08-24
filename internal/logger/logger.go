@@ -7,9 +7,9 @@ import (
 )
 
 func New(prefix string) *log.Logger {
-	return log.New(os.Stdout, fmt.Sprintf("%-18s", prefix), log.Ldate|log.Ltime)
+	return log.New(os.Stdout, fmt.Sprintf("%-25s", prefix), log.Ldate|log.Ltime)
 }
 
 func NewOnPort(prefix string, port int) *log.Logger {
-	return New(fmt.Sprintf("%s:%d", prefix, port))
+	return New(fmt.Sprintf("%s  :%d", prefix, port))
 }
